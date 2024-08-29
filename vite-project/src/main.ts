@@ -1,17 +1,13 @@
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
-import typescriptLogo from "./typescript.svg";
-import
-import viteLogo from "/vite.svg";
-import { setupCounter } from "./counter.ts";
-
 // Wait until the DOM content is fully loaded before running the script
 document.addEventListener("DOMContentLoaded", () => {
   // API endpoint for books
   const apiUrl = "http://localhost:3000/books";
 
   // Get references to HTML elements
-  const bookForm = document.getElementById("bookForm");
-  const bookList = document.getElementById("bookList");
+  const bookForm = document.getElementById("bookForm") as HTMLSelectElement;
+  const bookList = document.getElementById("bookList") as HTMLSelectElement;
 
   // Function to fetch all books from the API and display them
   async function fetchBooks() {
@@ -29,11 +25,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Function to display books in the list
-  function displayBooks(books) {
+  function displayBooks(books: any) {
     // Clear the existing book list
-    bookList.innerHTML = "";
+    (bookList as HTMLElement).innerHTML = "";
+
     // Iterate over each book and create list items
-    books.forEach((book) => {
+    books.forEach((book: any) => {
       const li = document.createElement("li");
       // Add Bootstrap classes to the list item
       li.classList.add("list-group-item");
@@ -50,12 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Append the delete button to the list item
       li.appendChild(deleteBtn);
       // Append the list item to the book list
-      bookList.appendChild(li);
+      (bookList as HTMLElement).appendChild(li);
     });
   }
 
   // Function to delete a book by its ID
-  async function deleteBook(id) {
+  async function deleteBook(id: any) {
     try {
       // Send a DELETE request to the API to remove the book
       await fetch(`${apiUrl}/${id}`, {
@@ -70,14 +67,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   let button = document.getElementById("button");
   // Handle form submission to add a new book
-  button.addEventListener("click", async (e) => {
+  button.addEventListener("click", async (e: MouseEvent) => {
     // Prevent the form from refreshing the page
     e.preventDefault();
     console.log("YAY!!");
     // Get values from form inputs
-    const title = document.getElementById("title").value;
-    const author = document.getElementById("author").value;
-    const year = document.getElementById("year").value;
+    const title = (document.getElementById("title") as HTMLInputElement).value;
+    const author = (document.getElementById("author") as HTMLInputElement)
+      .value;
+    const year = (document.getElementById("year") as HTMLInputElement).value;
 
     try {
       // Send a POST request to add a new book
@@ -89,7 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ title, author, year }),
       });
       // Reset the form fields
-      bookForm.reset();
+      (bookForm as HTMLFormElement).reset();
+
       // Fetch and display the updated list of books
       fetchBooks();
     } catch (error) {
