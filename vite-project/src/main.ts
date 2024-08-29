@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error deleting book:", error);
     }
   }
-  let button = document.getElementById("button");
+  let button = document.getElementById("button")!;
   // Handle form submission to add a new book
   button.addEventListener("click", async (e: MouseEvent) => {
     // Prevent the form from refreshing the page
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ title, author, year }),
       });
       // Reset the form fields
-      (bookForm as HTMLFormElement).reset();
+      (bookForm as unknown as HTMLFormElement).reset();
 
       // Fetch and display the updated list of books
       fetchBooks();
