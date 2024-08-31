@@ -1,102 +1,56 @@
+// main.ts
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
+import { fetchBooks, addBook, deleteBook } from "./bookService";
+
 // Wait until the DOM content is fully loaded before running the script
 document.addEventListener("DOMContentLoaded", () => {
-  // API endpoint for books
-  const apiUrl = "http://localhost:3000/books";
-
-  // Get references to HTML elements
-  const bookForm = document.getElementById("bookForm") as HTMLSelectElement;
-  const bookList = document.getElementById("bookList") as HTMLSelectElement;
-
-  // Function to fetch all books from the API and display them
-  async function fetchBooks() {
-    try {
-      // Fetch the list of books from the API
-      const response = await fetch(apiUrl);
-      // Convert the response to JSON
-      const books = await response.json();
-      // Call displayBooks to show the books on the page
-      displayBooks(books);
-    } catch (error) {
-      // Log any errors that occur during the fetch
-      console.error("Error fetching books:", error);
-    }
-  }
+  const bookForm = document.getElementById("bookForm") as HTMLFormElement;
+  const bookList = document.getElementById("bookList") as HTMLElement;
+  const button = document.getElementById("button")!;
 
   // Function to display books in the list
-  function displayBooks(books: any) {
-    // Clear the existing book list
-    (bookList as HTMLElement).innerHTML = "";
+  function displayBooks(books: any[]) {
+    bookList.innerHTML = "";
 
-    // Iterate over each book and create list items
-    books.forEach((book: any) => {
+    books.forEach((book) => {
       const li = document.createElement("li");
-      // Add Bootstrap classes to the list item
       li.classList.add("list-group-item");
-      // Set the text content of the list item using temperate literals
       li.textContent = `${book.title} by ${book.author}, ${book.year}`;
 
-      // Create a delete button for each book
       const deleteBtn = document.createElement("button");
       deleteBtn.classList.add("btn", "btn-danger", "btn-sm", "float-end");
       deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", async () => {
+        await deleteBook(book.id);
+        loadBooks();
+      });
 
-      // Add an event listener to handle delete button clicks
-      deleteBtn.addEventListener("click", () => deleteBook(book.id));
-      // Append the delete button to the list item
       li.appendChild(deleteBtn);
-      // Append the list item to the book list
-      (bookList as HTMLElement).appendChild(li);
+      bookList.appendChild(li);
     });
   }
 
-  // Function to delete a book by its ID
-  async function deleteBook(id: any) {
-    try {
-      // Send a DELETE request to the API to remove the book
-      await fetch(`${apiUrl}/${id}`, {
-        method: "DELETE",
-      });
-      // After deletion, fetch the updated list of books
-      fetchBooks();
-    } catch (error) {
-      // Log any errors that occur during the delete request
-      console.error("Error deleting book:", error);
-    }
+  // Load books and display them
+  async function loadBooks() {
+    const books = await fetchBooks();
+    displayBooks(books);
   }
-  let button = document.getElementById("button")!;
+
   // Handle form submission to add a new book
   button.addEventListener("click", async (e: MouseEvent) => {
-    // Prevent the form from refreshing the page
     e.preventDefault();
-    console.log("YAY!!");
-    // Get values from form inputs
     const title = (document.getElementById("title") as HTMLInputElement).value;
     const author = (document.getElementById("author") as HTMLInputElement)
       .value;
     const year = (document.getElementById("year") as HTMLInputElement).value;
 
-    try {
-      // Send a POST request to add a new book
-      await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title, author, year }),
-      });
-      // Reset the form fields
-      (bookForm as unknown as HTMLFormElement).reset();
-
-      // Fetch and display the updated list of books
-      fetchBooks();
-    } catch (error) {
-      // Log any errors that occur during the POST request
-      console.error("Error adding book:", error);
-    }
+    await addBook(title, author, year);
+    bookForm.reset();
+    loadBooks();
   });
 
   // Initial fetch to load and display books when the page loads
-  fetchBooks();
+  loadBooks();
 });
